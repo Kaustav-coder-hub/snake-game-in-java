@@ -26,6 +26,9 @@ public class GamePanel extends JPanel implements ActionListener {
     private Timer timer;                // Controls the game loop speed
     private Random random;              // For random apple placement
 
+    private Timer growthTimer; // Timer for snake growth animation
+    private boolean isGrowing = false; // Flag to check if the snake is growing
+
     // Buttons for try again and exit
     private JButton tryAgainButton;
     private JButton exitButton;
@@ -64,8 +67,8 @@ public class GamePanel extends JPanel implements ActionListener {
         x[0] = SCREEN_WIDTH / 2;
         y[0] = SCREEN_HEIGHT;
         direction = 'U';  // Set initial direction to the right
-        bodyParts = 10;    // Reset the snake's length
-        applesEaten = 32;  // Reset the score
+        bodyParts = 3;    // Reset the snake's length
+        applesEaten = 0;  // Reset the score
     
         newApple();       // Generate the first apple
         running = true;   // Start the game
@@ -124,6 +127,25 @@ public class GamePanel extends JPanel implements ActionListener {
         // Randomly place a new apple on the screen
         appleX = random.nextInt((int) (SCREEN_WIDTH / UNIT_SIZE)) * UNIT_SIZE;
         appleY = random.nextInt((int) (SCREEN_HEIGHT / UNIT_SIZE)) * UNIT_SIZE;
+
+        // Check if the apple is on the snake
+        for (int i = 0; i < bodyParts; i++) {
+            if (x[i] == appleX && y[i] == appleY) {
+                newApple(); // If apple is on the snake, generate a new one
+            }
+        }
+
+        isGrowing = true;
+        growthTimer = new Timer(200, e -> growSnake());
+        growthTimer.setRepeats(false); // Only run once
+        growthTimer.start();
+    }
+
+    private void growSnake() {
+        if (isGrowing) {
+            bodyParts++; // Increase the snake's length
+            isGrowing = false; // Reset growth flag
+        }
     }
 
     public void move() {
